@@ -4,7 +4,6 @@ function dbs_ocmr_get_updated_sobj_by_date(){
 	remove_entries_from_table('__USER_TABLE_DBS_UT_OCM-R_OCM_IMP');
 
 	var String sFunctionName = "dbs_ocmr_get_updated_sobj_by_date";
-
 	var String sUrlPrefix = context.DBS_OCM_R_SET_DEF_URL;
 	var String sUrlFunction = context.DBS_CUSET_OCMR_DEF_S_URL_FUNCTION_DATE;
 	var String sUrlParamQuestionMark = context.DBS_CUSET_OCMR_DEF_URL_S_PARAM_QUESTION_MARK;
@@ -14,57 +13,49 @@ function dbs_ocmr_get_updated_sobj_by_date(){
 	var String sUrlAcumulatedSupplementParamValue = context.DBS_CUSET_OCMR_DEF_URL_GET_BY_DATE_S_ACUM_SUPP_TRUE_OR_FALSE;
 	var String sUser = context.DBS_OCM_R_SET_DEF_USERNAME;
 	var String sPassword = context.DBS_OCM_R_SET_DEF_PASSWORD;
-
-	plw.writetolog("[INFO]["+sFunctionName+"] begin function");
-	plw.writetolog("[INFO]["+sFunctionName+"]"+" - called settings: "+ "\nOCM-R Endpoint URL: " + sUrlPrefix + ", " + "\nOCM-R Endpoint Username: " + sUser + ", " + "\nOCM-R Endpoint Password: " + sPassword);
-	
 	var Date dUpdatedBy = context.DBS_UA_D_OCM_R_UPDATED_DATE;
-	plw.writetolog("[INFO]["+sFunctionName+"] date updated by: "+dUpdatedBy);
-	
+
+
 	var String sFormattedDate = context.DBS_CUSET_OCMR_DEF_DATE_PRINT.Call(dUpdatedBy,context.DBS_CUSET_OCMR_DEF_DATE_WANTED_FORMAT);
-	plw.writetolog("[INFO]["+sFunctionName+"] formatted date: "+sFormattedDate);
-	
 	var String Regexp = "[,\.]";
 	var String sFinalDate = sFormattedDate.toString().ReplaceRegexp(Regexp,"");
-	plw.writetolog("[INFO]["+sFunctionName+"] ?updated_date=" + sFinalDate );
+    	var String sUrl = sUrlPrefix+sUrlFunction+sUrlParamQuestionMark+sUrlDateParam+sFinalDate+sUrlParamAnd+sUrlAcumulatedSupplementParam+sUrlAcumulatedSupplementParamValue;
 
-	var String sUrl = sUrlPrefix+sUrlFunction+sUrlParamQuestionMark+sUrlDateParam+sFinalDate+sUrlParamAnd+sUrlAcumulatedSupplementParam+sUrlAcumulatedSupplementParamValue;
-	plw.writetolog("[INFO]["+sFunctionName+"] DEFAULT URL OCM ENDPOINT: "+sUrl);
+	plw.writetolog("[INFO]["+sFunctionName+"] begin function"); // print start that function
+	plw.writetolog("[INFO]["+sFunctionName+"]"+" - called settings: "+ "\nOCM-R Endpoint URL: " + sUrlPrefix + ", " + "\nOCM-R Endpoint Username: " + sUser + ", " + "\nOCM-R Endpoint Password: " + sPassword); // print updated string object by date called settings OCM-R endpoint URL prefix is ____ and the username is ___ and password is ____
+	plw.writetolog("[INFO]["+sFunctionName+"] date updated by: "+dUpdatedBy); // print the date it needs to be updated by
+	plw.writetolog("[INFO]["+sFunctionName+"] formatted date: "+sFormattedDate); // print date formatted
+	plw.writetolog("[INFO]["+sFunctionName+"] ?updated_date=" + sFinalDate ); // print final form of the updated date
+	plw.writetolog("[INFO]["+sFunctionName+"] DEFAULT URL OCM ENDPOINT: "+sUrl); // print that full url prefix + function + ? + Date Param + final date + URL param + URL accumulated supplement param + URL Accumulated supplement param value
 ________________________________________________________________________________________________________________________________
-	var Vector sResult = new vector();
+	var Vector sResult = new vector(); // List ish 
 	var String sFileContent = "";
 	var String sFilePath = "";
 	var String sFileName = "";
 	var pathname oPath = undefined;
 
-	var plc.impextarget oTarget = plc.impextarget.get(context.DBS_CUSET_OCMR_SOBJ_BY_DATE_TARGET);
-	var plc.impexformat oFormat = plc.impexformat.get(context.DBS_CUSET_OCMR_SOBJ_BY_DATE_FORMAT);
+	var plc.impextarget oTarget = plc.impextarget.get(context.DBS_CUSET_OCMR_SOBJ_BY_DATE_TARGET); // get that date target
+	var plc.impexformat oFormat = plc.impexformat.get(context.DBS_CUSET_OCMR_SOBJ_BY_DATE_FORMAT); // get that date format
 
-
-	//v0.11: function call
-	sResult = dbs_ocmr_authenticate_and_get_json_response(sUser, sPassword, sUrl);
-	plw.writetolog("[INFO]["+sFunctionName+"] return: "+sResult);
+	sResult = dbs_ocmr_authenticate_and_get_json_response(sUser, sPassword, sUrl); // get username, password, and URL from JSON and print as a Vector 
+	plw.writetolog("[INFO]["+sFunctionName+"] return: "+sResult); // print String ObJ by date return username, password and URL returned from JSON as Vector
 	
-
-	//v0.39
-	if (sResult != undefined && typeof sResult == 'object')
+	if (sResult != undefined && typeof sResult == 'object') //if that result is NOT undefined and the type is OBJ
 		try {
-			sFileContent = dbs_ocmr_prepare_sobj_for_import(sResult, oFormat);
+			sFileContent = dbs_ocmr_prepare_sobj_for_import(sResult, oFormat); // assign result and format from  String OBJ to variable File Content
 		} catch (error e) {
-			plw.writetolog("[ERROR]["+sFunctionName+"] error when trying split the JSON: "+e);
+			plw.writetolog("[ERROR]["+sFunctionName+"] error when trying split the JSON: "+e); // print that error
 		}
 		
 
-	plw.writetolog("[INFO]["+sFunctionName+"] formatted content: "+sFileContent);
+	plw.writetolog("[INFO]["+sFunctionName+"] formatted content: "+sFileContent); // print that new assigned value for file content
 	
-	if (sFileContent != undefined && sFileContent != "" && sFileContent != "[]") {
-		//v0.07: from here down was added
+	if (sFileContent != undefined && sFileContent != "" && sFileContent != "[]") { // if file content is NOT undefined and file content is NOT "" and not [] XXXXXXX If any value...
 		var String sWriteMode = context.DBS_CUSET_OCMR_DEF_WRITE_MODE_OVERWRITE;
-		sFilePath = context.DBS_UA_S_OCM_R_JSON_FILE_PATH;
-		
+		sFilePath = context.DBS_UA_S_OCM_R_JSON_FILE_PATH; // Only if file has content then we assign value to the file path and name
 		sFileName = context.DBS_CUSET_OCMR_SOBJ_DATA_FILE;
-		//v0.12: function call
-		oPath = dbs_ocmr_create_json_file(sFileName, sWriteMode, sFileContent);
+
+		oPath = dbs_ocmr_create_json_file(sFileName, sWriteMode, sFileContent); // Create JSON
 		
 		//v0.07: the rest of this actually runs the import using the target and impexformat
 		//we can separate it if needed, but otherwise I think we can leave it here if we want it all in one

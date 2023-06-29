@@ -53,32 +53,27 @@ ________________________________________________________________________________
 	if (sFileContent != undefined && sFileContent != "" && sFileContent != "[]") { // if file content is NOT undefined and file content is NOT "" and not [] XXXXXXX If any value...
 		var String sWriteMode = context.DBS_CUSET_OCMR_DEF_WRITE_MODE_OVERWRITE;
 		sFilePath = context.DBS_UA_S_OCM_R_JSON_FILE_PATH; // Only if file has content then we assign value to the file path and name
-		sFileName = context.DBS_CUSET_OCMR_SOBJ_DATA_FILE;
+		sFileName = context.DBS_CUSET_OCMR_SOBJ_DATA_FILE; // file name as data file  
 
 		oPath = dbs_ocmr_create_json_file(sFileName, sWriteMode, sFileContent); // Create JSON
 		
-		//v0.07: the rest of this actually runs the import using the target and impexformat
-		//we can separate it if needed, but otherwise I think we can leave it here if we want it all in one
-		if (sFilePath == oPath.toString()) {
-			//DBS_CUSET_OCMR_SOBJ_BY_DATE_TARGET
-			plw.writetolog("[INFO]["+sFunctionName+"] impex target: "+oTarget);
-
+		if (sFilePath == oPath.toString()) { // if file path is equal to oPath as a String
+			plw.writetolog("[INFO]["+sFunctionName+"] impex target: "+oTarget); 
 			plw.writetolog("[INFO]["+sFunctionName+"] impex format: "+oFormat);
 			
-			//v0.13: function call
-			var String sFunctionStatus = dbs_ocmr_json_import(oTarget, oFormat, sFunctionName);
-			plw.writetolog(sFunctionStatus);
+			var String sFunctionStatus = dbs_ocmr_json_import(oTarget, oFormat, sFunctionName); //  printing whether or not the import was successful
+			plw.writetolog(sFunctionStatus); // prints whether or not the completing of this function's import was successful
 			
 		} else
-			plw.writetolog("[ERROR]["+sFunctionName+"] the file paths do not match: "+plw.char(10)+" - "+oPath+plw.char(10)+" - "+sFilePath);
+			plw.writetolog("[ERROR]["+sFunctionName+"] the file paths do not match: "+plw.char(10)+" - "+oPath+plw.char(10)+" - "+sFilePath); // file path error for this main function
 	}
 	else
-		plw.writetolog("[ERROR]["+sFunctionName+"] the retuned file content is empty");
+		plw.writetolog("[ERROR]["+sFunctionName+"] the retuned file content is empty"); // empty file no things
 	
-	plw.writetolog("[INFO]["+sFunctionName+"] end of function");
+	plw.writetolog("[INFO]["+sFunctionName+"] end of function"); // prints the end of this function 
 	if (oPath != undefined)
-		return oPath;
+		return oPath; // return the oPath we set previously
 	else
-		return false;
+		return false; 
 }
 dbs_ocmr_get_updated_sobj_by_date.exportfunction();
